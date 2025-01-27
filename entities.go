@@ -24,4 +24,3 @@ var ball = Entity{
 	height: 5,
 	score:  0,
 }
-

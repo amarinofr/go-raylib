@@ -7,13 +7,6 @@ func collisionCheck(a *Entity, b *Entity) bool {
 		a.pos.Y+a.height >= b.pos.Y)
 }
 
-func reset(a *Entity, b *Entity, c *Entity) {
-	a.pos.X = SCREEN_W / 2
-	a.pos.Y = SCREEN_H / 2
-	b.pos.Y = SCREEN_H/2 - b.height/2
-	c.pos.Y = SCREEN_H/2 - c.height/2
-}
-
 func move(entity *Entity, direction float32) {
 	entity.pos.Y += float32(direction) * float32(entity.speed)
 }
