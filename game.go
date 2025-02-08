@@ -7,17 +7,25 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+var canMove bool
+
 func (g *Game) Init() {
 	rl.InitWindow(SCREEN_W, SCREEN_H, TITLE)
 	rl.SetTargetFPS(FPS)
 
-	ball.direction = float32(rand.Intn(2) - 1)
-	if ball.direction == 0 {
-		ball.direction = 1
+	ball.direction = rl.NewVector2(float32(rand.Intn(2)-1), float32(rand.Intn(2)-1))
+
+	if ball.direction.X == 0 {
+		ball.direction.X = 1
+	}
+
+	if ball.direction.Y == 0 {
+		ball.direction.Y = 1
 	}
 
 	g.running = true
 	g.reset = false
+	canMove = true
 }
 
 func (g *Game) Close() {
@@ -39,11 +47,18 @@ func (g *Game) Loop() {
 	}
 }
 
-func reset(a *Entity, b *Entity, c *Entity) {
+func reset(a *Entity, b *Entity, c *Entity, g *Game) {
+	if !g.reset {
+		g.reset = true
+	}
+
+	a.direction = rl.NewVector2(0, 0)
 	a.pos.X = SCREEN_W / 2
 	a.pos.Y = SCREEN_H / 2
+
 	b.pos.Y = SCREEN_H/2 - b.height/2
 	c.pos.Y = SCREEN_H/2 - c.height/2
+
 }
 
 func input(entity *Entity, g *Game) {
@@ -64,54 +79,66 @@ func input(entity *Entity, g *Game) {
 	if g.reset {
 		if rl.IsKeyPressed(rl.KeyEnter) {
 			g.reset = false
-			ball.direction = float32(rand.Intn(2) - 1)
+			ball.direction = rl.NewVector2(float32(rand.Intn(2)-1), float32(rand.Intn(2)-1))
 
-			if ball.direction == 0 {
-				ball.direction = 1
+			if ball.direction.X == 0 {
+				ball.direction.X = 1
+			}
+
+			if ball.direction.Y == 0 {
+				ball.direction.Y = 1
 			}
 		}
 	}
 }
 
 func checkBounds(ball *Entity, enemy *Entity, player *Entity, g *Game) {
-	top := 0
-	bottom := SCREEN_H
-	left := 0
-	right := SCREEN_W
-
-	// if (collisionCheck(ball, player)) {
-	// 	ball.direction = 1
-	// }
-
-	// if (collisionCheck(ball, enemy)) {
-	// 	ball.direction = -1
-	// }
-}
-
-func ballBehaviors(ball *Entity, enemy *Entity, player *Entity, g *Game) {
-
-	if ball.pos.X < 0 {
-		g.reset = true
-		reset(ball, enemy, player)
+	if ball.pos.X < BOUNDS_LEFT {
+		ball.direction.X = 1
+		// reset(ball, enemy, player, g)
 		enemy.score++
 	}
 
-	if ball.pos.X > SCREEN_W-ball.width {
-		g.reset = true
-		reset(ball, enemy, player)
+	if ball.pos.X > BOUNDS_RIGHT {
+		ball.direction.X = -1
+		// reset(ball, enemy, player, g)
 		player.score++
 	}
+}
 
-	if g.reset {
-		ball.direction = 0
+func ballBehaviors(ball *Entity, enemy *Entity, player *Entity) {
+	if ball.pos.Y < BOUNDS_TOP {
+		ball.direction.Y = 1
 	}
 
-	ball.pos.X += float32(ball.direction) * float32(ball.speed)
+	if ball.pos.Y > BOUNDS_BOTTOM {
+		ball.direction.Y = -1
+	}
+
+	if collisionCheck(ball, enemy) {
+		ball.direction.X = -1
+		canMove = false
+	}
+
+	if collisionCheck(ball, player) {
+		ball.direction.X = 1
+		canMove = true
+		getEndPos(ball, enemy)
+	}
+
+	ball.pos.X += ball.direction.X * float32(ball.speed)
+	ball.pos.Y += ball.direction.Y * float32(ball.speed)
+}
+
+func getEndPos(ball *Entity, enemy *Entity) {
+	fmt.Println(BOUNDS_RIGHT - ball.pos.X)
+	fmt.Println(ball.pos.X - enemy.pos.Y)
 }
 
 func (g *Game) update() {
 	rl.DrawFPS(10, SCREEN_H-20)
-	ballBehaviors(&ball, &enemy, &player, g)
+	ballBehaviors(&ball, &enemy, &player)
+	checkBounds(&ball, &enemy, &player, g)
 }
 
 func (g *Game) draw() {

@@ -12,6 +12,7 @@ type Entity struct {
 	speed     int16
 	width     float32
 	height    float32
-	direction float32
+	direction rl.Vector2
 	score     int
+	center rl.Vector2
 }
