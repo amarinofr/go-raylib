@@ -123,22 +123,21 @@ func ballBehaviors(ball *Entity, enemy *Entity, player *Entity) {
 	if collisionCheck(ball, player) {
 		ball.direction.X = 1
 		canMove = true
-		getEndPos(ball, enemy)
 	}
 
 	ball.pos.X += ball.direction.X * float32(ball.speed)
 	ball.pos.Y += ball.direction.Y * float32(ball.speed)
 }
 
-func getEndPos(ball *Entity, enemy *Entity) {
-	fmt.Println(BOUNDS_RIGHT - ball.pos.X)
-	fmt.Println(ball.pos.X - enemy.pos.Y)
+func moveEnemy(ball *Entity, enemy *Entity) {
+	enemy.pos.Y += float32(enemy.speed) * float32(rl.GetFrameTime())
 }
 
 func (g *Game) update() {
 	rl.DrawFPS(10, SCREEN_H-20)
 	ballBehaviors(&ball, &enemy, &player)
 	checkBounds(&ball, &enemy, &player, g)
+	moveEnemy(&ball, &enemy)
 }
 
 func (g *Game) draw() {
