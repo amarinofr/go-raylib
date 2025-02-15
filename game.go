@@ -7,7 +7,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var canMove bool
 
 func (g *Game) Init() {
 	rl.InitWindow(SCREEN_W, SCREEN_H, TITLE)
@@ -25,7 +24,6 @@ func (g *Game) Init() {
 
 	g.running = true
 	g.reset = false
-	canMove = true
 }
 
 func (g *Game) Close() {
@@ -117,12 +115,10 @@ func ballBehaviors(ball *Entity, enemy *Entity, player *Entity) {
 
 	if collisionCheck(ball, enemy) {
 		ball.direction.X = -1
-		canMove = false
 	}
 
 	if collisionCheck(ball, player) {
 		ball.direction.X = 1
-		canMove = true
 	}
 
 	ball.pos.X += ball.direction.X * float32(ball.speed)
@@ -130,7 +126,9 @@ func ballBehaviors(ball *Entity, enemy *Entity, player *Entity) {
 }
 
 func moveEnemy(ball *Entity, enemy *Entity) {
-	enemy.pos.Y += float32(enemy.speed) * float32(rl.GetFrameTime())
+	dir := int((ball.pos.Y + ball.height/2) / SCREEN_H/2)
+
+	fmt.Println(dir)
 }
 
 func (g *Game) update() {
