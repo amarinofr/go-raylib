@@ -4,10 +4,12 @@ const (
 	SCREEN_W = 800
 	SCREEN_H = 450
 
-	BOUNDS_TOP    = 0
-	BOUNDS_BOTTOM = SCREEN_H
-	BOUNDS_LEFT   = 0
-	BOUNDS_RIGHT  = SCREEN_W
+	BOUNDS_TOP    = float32(0)
+	BOUNDS_BOTTOM = float32(SCREEN_H)
+	BOUNDS_LEFT   = float32(0)
+	BOUNDS_RIGHT  = float32(SCREEN_W)
+
+	BUFFER = float32(10)
 
 	TITLE = "Pong"
 

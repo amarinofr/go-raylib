@@ -10,8 +10,7 @@ type Game struct {
 type Entity struct {
 	pos       rl.Vector2
 	speed     int16
-	width     float32
-	height    float32
+	size      rl.Vector2
 	direction rl.Vector2
 	score     int
 	center rl.Vector2
