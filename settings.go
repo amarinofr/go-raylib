@@ -9,7 +9,7 @@ const (
 	BOUNDS_LEFT   = float32(0)
 	BOUNDS_RIGHT  = float32(SCREEN_W)
 
-	BUFFER = float32(10)
+	OFFSET = float32(10)
 
 	TITLE = "Pong"
 

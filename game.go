@@ -6,6 +6,9 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+var colX float32
+var colY float32
+
 func (g *Game) Init() {
 	rl.InitWindow(SCREEN_W, SCREEN_H, TITLE)
 	rl.SetTargetFPS(FPS)
@@ -43,6 +46,10 @@ func input(entity *Entity, g *Game) {
 		if rl.IsKeyDown(rl.KeyDown) {
 			move(entity, float32(1))
 		}
+
+		if rl.IsKeyReleased(rl.KeyR) {
+			reset(&ball, &enemy, &player, g)
+		}
 	}
 
 	if g.reset {
@@ -54,22 +61,25 @@ func input(entity *Entity, g *Game) {
 	}
 }
 
-func reset(a *Entity, b *Entity, c *Entity, g *Game) {
+func reset(a *Object, b *Entity, c *Entity, g *Game) {
 	if !g.reset {
 		g.reset = true
 	}
 
-	a.direction = rl.NewVector2(0, 0)
-	a.pos.X = SCREEN_W / 2
-	a.pos.Y = SCREEN_H / 2
+	a.direction.X = 0
+	a.direction.Y = 0
+
+	col.point.Y = 0
+	
+	a.pos.X = SCREEN_W / 2 - 2.5
+	a.pos.Y = SCREEN_H / 2 - 2.5
 
 	b.pos.Y = SCREEN_H/2 - b.size.Y/2
 	c.pos.Y = SCREEN_H/2 - c.size.Y/2
-
 }
 
 
-func checkBounds(ball *Entity, enemy *Entity, player *Entity, g *Game) {
+func checkBounds(ball *Object, enemy *Entity, player *Entity, g *Game) {
 	if ball.pos.X <= BOUNDS_LEFT {
 		// ball.direction.X = 1 // used for debbuging
 		reset(ball, enemy, player, g)
@@ -91,32 +101,35 @@ func checkBounds(ball *Entity, enemy *Entity, player *Entity, g *Game) {
 	}
 }
 
-func ballBehaviors(ball *Entity, enemy *Entity, player *Entity) {
-	if collisionCheck(ball, enemy) {
+func ballBehaviors(ball *Object, enemy *Entity, player *Entity, col *Collision) {
+	if collisionCheck(ball, enemy, col) {
 		ball.direction.X = -1
-	}
 
-	if collisionCheck(ball, player) {
+		fmt.Println(ball.direction.Y)
+
+	}
+	
+	if collisionCheck(ball, player, col) {
 		ball.direction.X = 1
 	}
 
 	ball.pos.X += ball.direction.X * float32(ball.speed) * rl.GetFrameTime()
-	ball.pos.Y += ball.direction.Y * float32(ball.speed) * rl.GetFrameTime()
+	ball.pos.Y +=  (float32(ball.speed) * float32(float32(ball.direction.Y))) * rl.GetFrameTime()
 }
 
-func moveEnemy(ball *Entity, enemy *Entity) {
-	if ball.pos.Y > enemy.pos.Y + (enemy.size.Y/2 + 20) {
+func moveEnemy(ball *Object, enemy *Entity) {
+	if ball.pos.Y > enemy.pos.Y + (enemy.size.Y/2) {
 		move(enemy, 1)
 	}
 
-	if ball.pos.Y < enemy.pos.Y + (enemy.size.Y/2 - 20) {
+	if ball.pos.Y < enemy.pos.Y + (enemy.size.Y/2) {
 		move(enemy, -1)
 	}
 }
 
 func (g *Game) update() {
 	rl.DrawFPS(10, SCREEN_H-20)
-	ballBehaviors(&ball, &enemy, &player)
+	ballBehaviors(&ball, &enemy, &player, &col)
 	checkBounds(&ball, &enemy, &player, g)
 	moveEnemy(&ball, &enemy)
 }
@@ -132,6 +145,10 @@ func (g *Game) draw() {
 
 	rl.DrawText(fmt.Sprintf("%d", player.score), 10, 10, 20, rl.White)
 	rl.DrawText(fmt.Sprintf("%d", enemy.score), SCREEN_W-20, 10, 20, rl.White)
+
+	// rl.DrawText(fmt.Sprintf("%f", col.point.Y), SCREEN_W/2-30, SCREEN_H/2, 20, rl.White)
+	// rl.DrawText(fmt.Sprintf("%f", enemy.pos.Y), SCREEN_W/2-30, SCREEN_H/2 + 30, 10, rl.White)
+	// rl.DrawText(fmt.Sprintf("%d", colY), SCREEN_W/2 - 50, SCREEN_H/2, 20, rl.White)	
 
 	if g.reset {
 		rl.DrawText("Press Enter to reset", SCREEN_W/2-100, 10, 20, rl.White)
